@@ -1,0 +1,13 @@
+print "what is this"
+var name
+get input
+
+if input!="what"
+{
+	print "not what!. quitting!"
+	break
+}
+loop(10)
+{
+	print "hi";
+}
