@@ -1,5 +1,6 @@
 #include "lex.h"
 
+
 enum tokentype
 {
 	TYPE_STR, 
