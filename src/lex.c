@@ -15,6 +15,7 @@ enum tokentype
 	TYPE_IDEN,
 	TYPE_IF,
 	TYPE_ELSE,
+	TYPE_BREAK,
 	TYPE_EQ,
 	TYPE_ASGN,
 	TYPE_GRT,
@@ -78,6 +79,44 @@ char* val(enum tokentype type)
 		case 10:
 			typestr = "TYPE_IDEN";
 			break;
+		case 11:
+			typestr = "TYPE_IF";
+			break;
+		case 12:
+			typestr = "TYPE_ELSE";
+			break;
+		case 13:
+			typestr = "TYPE_BREAK";
+			break;
+		case 14:
+			typestr = "TYPE_EQ";
+			break;
+		case 15:
+			typestr = "TYPE_ASGN";
+			break;
+		case 16:
+			typestr = "TYPE_GRT";
+			break;
+		case 17:
+			typestr = "TYPE_LSS";
+			break;
+		case 18:
+			typestr = "TYPE_NE";
+			break;
+		case 19:
+			typestr = "TYPE_ADD";
+			break;
+		case 20:
+			typestr = "TYPE_SUB";
+			break;
+		case 21:
+			typestr = "TYPE_MUL";
+			break;
+		case 22:
+			typestr = "TYPE_DIV";
+			break;
+	
+	
 		default:
 			typestr = "(NULL)";
 			break;
@@ -157,27 +196,27 @@ void tokenize_code(char* source_code)
 		}
 		else if(source_code[i]=='(')
 		{
-			wTOK.type = TYPE_OP;
-			wTOK.token = "(";
-			parse(i, i+1);
+					wTOK.type = TYPE_OP;
+					wTOK.token = "(";
+					parse(i, i+1);
 		}
 		else if(source_code[i-1]==')')
 		{
-			wTOK.type = TYPE_CP;
-			wTOK.token = ")";
-			parse(i, i+1);
+					wTOK.type = TYPE_CP;
+					wTOK.token = ")";
+					parse(i, i+1);
 		}
 		else if(source_code[i]=='{')
 		{
-			wTOK.type = TYPE_OCB;
-			wTOK.token = "{";
-			parse(i, i+1);
+					wTOK.type = TYPE_OCB;
+					wTOK.token = "{";
+					parse(i, i+1);
 		}
 		else if(source_code[i-1]=='}')
 		{
-			wTOK.type = TYPE_CCB;
-			wTOK.token = "}";
-			parse(i, i+1);
+					wTOK.type = TYPE_CCB;
+					wTOK.token = "}";
+					parse(i, i+1);
 		}
 		else if(source_code[i]=='p')
 		{
@@ -221,6 +260,50 @@ void tokenize_code(char* source_code)
 				wTOK.token = "loop";
 				parse(i, i+4);
 				i = i+3;
+			}		
+		}
+		else if(source_code[i]=='i')
+		{
+			char* chkstr = substr(source_code, i, i+1);
+			if(strcmp(chkstr, "if")==0)
+			{
+				wTOK.type = TYPE_IF;
+				wTOK.token = "if";
+				parse(i, i+1);
+				i = i+1;
+			}		
+		}
+		else if(source_code[i]=='e')
+		{
+			char* chkstr = substr(source_code, i, i+4);
+			if(strcmp(chkstr, "else")==0)
+			{
+				wTOK.type = TYPE_ELSE;
+				wTOK.token = "else";
+				parse(i, i+4);
+				i = i+3;
+			}		
+		}
+		else if(source_code[i]=='b')
+		{
+			char* chkstr = substr(source_code, i, i+5);
+			if(strcmp(chkstr, "break")==0)
+			{
+				wTOK.type = TYPE_BREAK;
+				wTOK.token = "break";
+				parse(i, i+5);
+				i = i+4;
+			}		
+		}
+		else if(source_code[i]=='=')
+		{
+			char* chkstr = substr(source_code, i, i+1);
+			if(strcmp(chkstr, "==")==0)
+			{
+				wTOK.type = TYPE_EQ;
+				wTOK.token = "==";
+				parse(i, i+1);
+				i = i+1;
 			}		
 		}
 		else if(source_code[i] >= 'A' && source_code[i] <= 'z')
