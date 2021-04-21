@@ -1,6 +1,5 @@
 #include "lex.h"
 
-
 enum tokentype
 {
 	TYPE_STR, 
@@ -11,7 +10,9 @@ enum tokentype
 	TYPE_CCB,
 	TYPE_PRINT,
 	TYPE_GET,
+	TYPE_VAR,
 	TYPE_LOOP,
+	TYPE_IDEN,
 	TYPE_IF,
 	TYPE_ELSE,
 	TYPE_EQ,
@@ -39,10 +40,55 @@ token_lex wTOK;
 int count = 0;
 char* block;
 
+char* val(enum tokentype type)
+{
+	char* typestr;
+	switch(type)
+	{
+		case 0:
+			typestr = "TYPE_STR";
+			break;
+		case 1:
+			typestr = "TYPE_INT";
+			break;
+		case 2:
+			typestr = "TYPE_OP";
+			break;
+		case 3:
+			typestr = "TYPE_CP";
+			break;
+		case 4:
+			typestr = "TYPE_OCB";
+			break;
+		case 5:
+			typestr = "TYPE_CCB";
+			break;
+		case 6:
+			typestr = "TYPE_PRINT";
+			break;
+		case 7:
+			typestr = "TYPE_GET";
+			break;
+		case 8:
+			typestr = "TYPE_VAR";
+			break;
+		case 9:
+			typestr = "TYPE_LOOP";
+			break;
+		case 10:
+			typestr = "TYPE_IDEN";
+			break;
+		default:
+			typestr = "(NULL)";
+			break;
+	}
+	return typestr;
+}
+
 void parse(int i, int j)
 {
 	// wTOK.type_str = TypeToString(TYPE_STR); todo
-	printf("[%d] %d, %d - %s\n", wTOK.type, i, j, wTOK.token);
+	printf("[%s] %d, %d - %s\n", val(wTOK.type), i, j, wTOK.token);
 }
 
 char* substr(char* source, int start, int end)
@@ -90,7 +136,7 @@ void tokenize_code(char* source_code)
 					wTOK.token = substr(source_code, i, j+1);
 					wTOK.type = TYPE_STR;
 					parse(i, j+1);
-					i = j;
+					i = j+1;
 					break;
 				}
 			}
@@ -111,15 +157,85 @@ void tokenize_code(char* source_code)
 		}
 		else if(source_code[i]=='(')
 		{
-					wTOK.type = TYPE_OP;
-					wTOK.token = "(";
-					parse(i, i+1);
+			wTOK.type = TYPE_OP;
+			wTOK.token = "(";
+			parse(i, i+1);
 		}
-		else if(source_code[i]==')')
+		else if(source_code[i-1]==')')
 		{
-					wTOK.type = TYPE_CP;
-					wTOK.token = ")";
-					parse(i, i+1);
+			wTOK.type = TYPE_CP;
+			wTOK.token = ")";
+			parse(i, i+1);
+		}
+		else if(source_code[i]=='{')
+		{
+			wTOK.type = TYPE_OCB;
+			wTOK.token = "{";
+			parse(i, i+1);
+		}
+		else if(source_code[i-1]=='}')
+		{
+			wTOK.type = TYPE_CCB;
+			wTOK.token = "}";
+			parse(i, i+1);
+		}
+		else if(source_code[i]=='p')
+		{
+			char* chkstr = substr(source_code, i, i+5);
+			if(strcmp(chkstr, "print")==0)
+			{
+				wTOK.type = TYPE_PRINT;
+				wTOK.token = "print";
+				parse(i, i+5);
+				i = i+5;
+			}		
+		}
+		else if(source_code[i]=='g')
+		{
+			char* chkstr = substr(source_code, i, i+3);
+			if(strcmp(chkstr, "get")==0)
+			{
+				wTOK.type = TYPE_GET;
+				wTOK.token = "get";
+				parse(i, i+3);
+				i = i+3;
+			}		
+		}
+		else if(source_code[i]=='v')
+		{
+			char* chkstr = substr(source_code, i, i+3);
+			if(strcmp(chkstr, "var")==0)
+			{
+				wTOK.type = TYPE_VAR;
+				wTOK.token = "var";
+				parse(i, i+3);
+				i = i+3;
+			}		
+		}
+		else if(source_code[i]=='l')
+		{
+			char* chkstr = substr(source_code, i, i+4);
+			if(strcmp(chkstr, "loop")==0)
+			{
+				wTOK.type = TYPE_LOOP;
+				wTOK.token = "loop";
+				parse(i, i+4);
+				i = i+3;
+			}		
+		}
+		else if(source_code[i] >= 'A' && source_code[i] <= 'z')
+		{
+			for(size_t j=i;j<source_len;j++)
+			{
+				if(!(source_code[j] >= 'A' && source_code[j] <= 'z'))
+				{
+					wTOK.token = substr(source_code, i, j);
+					wTOK.type = TYPE_IDEN;
+					parse(i, j);
+					i = j;
+					break;
+				}
+			}
 		}
 	}
 }
