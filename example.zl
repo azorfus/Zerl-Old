@@ -9,5 +9,5 @@ if input!="what"
 }
 loop(10)
 {
-	print "hi";
+	print "hi"
 }
