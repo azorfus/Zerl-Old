@@ -7,7 +7,7 @@ enum tokentype
 	TYPE_OP,
 	TYPE_CP,
 	TYPE_OCB,
-	TYPE_CCB,
+	TYPE_CCB,	
 	TYPE_PRINT,
 	TYPE_GET,
 	TYPE_VAR,
@@ -18,8 +18,8 @@ enum tokentype
 	TYPE_BREAK,
 	TYPE_EQ,
 	TYPE_ASGN,
-	TYPE_GRT,
-	TYPE_LSS,
+	TYPE_OAB,
+	TYPE_CAB,
 	TYPE_NE,
 	TYPE_ADD,
 	TYPE_SUB,
@@ -196,115 +196,132 @@ void tokenize_code(char* source_code)
 		}
 		else if(source_code[i]=='(')
 		{
-					wTOK.type = TYPE_OP;
-					wTOK.token = "(";
-					parse(i, i+1);
+			wTOK.type = TYPE_OP;
+			wTOK.token = "(";
+			parse(i, i+1);
 		}
 		else if(source_code[i-1]==')')
 		{
-					wTOK.type = TYPE_CP;
-					wTOK.token = ")";
-					parse(i, i+1);
+			wTOK.type = TYPE_CP;
+			wTOK.token = ")";
+			parse(i, i+1);
 		}
 		else if(source_code[i]=='{')
 		{
-					wTOK.type = TYPE_OCB;
-					wTOK.token = "{";
-					parse(i, i+1);
+			wTOK.type = TYPE_OCB;
+			wTOK.token = "{";
+			parse(i, i+1);
 		}
 		else if(source_code[i-1]=='}')
 		{
-					wTOK.type = TYPE_CCB;
-					wTOK.token = "}";
-					parse(i, i+1);
+			wTOK.type = TYPE_CCB;
+			wTOK.token = "}";
+			parse(i, i+1);
 		}
-		else if(source_code[i]=='p')
+		else if(strncmp(source_code + i, "print", 5) == 0)
 		{
-			char* chkstr = substr(source_code, i, i+5);
-			if(strcmp(chkstr, "print")==0)
-			{
-				wTOK.type = TYPE_PRINT;
-				wTOK.token = "print";
-				parse(i, i+5);
-				i = i+5;
-			}		
+			wTOK.type = TYPE_PRINT;
+			wTOK.token = "print";
+			parse(i, i+5);
+			i = i+5;
 		}
-		else if(source_code[i]=='g')
+		else if(strncmp(source_code + i, "get", 3) == 0)
 		{
-			char* chkstr = substr(source_code, i, i+3);
-			if(strcmp(chkstr, "get")==0)
-			{
-				wTOK.type = TYPE_GET;
-				wTOK.token = "get";
-				parse(i, i+3);
-				i = i+3;
-			}		
+			wTOK.type = TYPE_GET;
+			wTOK.token = "get";
+			parse(i, i+3);
+			i = i+3;
 		}
-		else if(source_code[i]=='v')
+		else if(strncmp(source_code + i, "var", 3) == 0)
 		{
-			char* chkstr = substr(source_code, i, i+3);
-			if(strcmp(chkstr, "var")==0)
-			{
-				wTOK.type = TYPE_VAR;
-				wTOK.token = "var";
-				parse(i, i+3);
-				i = i+3;
-			}		
+			wTOK.type = TYPE_VAR;
+			wTOK.token = "var";
+			parse(i, i+3);
+			i = i+3;
 		}
-		else if(source_code[i]=='l')
+		else if(strncmp(source_code + i, "loop", 4) == 0)
 		{
-			char* chkstr = substr(source_code, i, i+4);
-			if(strcmp(chkstr, "loop")==0)
-			{
-				wTOK.type = TYPE_LOOP;
-				wTOK.token = "loop";
-				parse(i, i+4);
-				i = i+3;
-			}		
+			wTOK.type = TYPE_LOOP;
+			wTOK.token = "loop";
+			parse(i, i+4);
+			i = i+3;
 		}
-		else if(source_code[i]=='i')
+		else if(strncmp(source_code + i, "else", 4) == 0)
 		{
-			char* chkstr = substr(source_code, i, i+1);
-			if(strcmp(chkstr, "if")==0)
-			{
-				wTOK.type = TYPE_IF;
-				wTOK.token = "if";
-				parse(i, i+1);
-				i = i+1;
-			}		
+			wTOK.type = TYPE_ELSE;
+			wTOK.token = "else";
+			parse(i, i+4);
+			i = i+3;
 		}
-		else if(source_code[i]=='e')
+		else if(strncmp(source_code + i, "break", 5) == 0)
 		{
-			char* chkstr = substr(source_code, i, i+4);
-			if(strcmp(chkstr, "else")==0)
-			{
-				wTOK.type = TYPE_ELSE;
-				wTOK.token = "else";
-				parse(i, i+4);
-				i = i+3;
-			}		
+			wTOK.type = TYPE_BREAK;
+			wTOK.token = "break";
+			parse(i, i+5);
+			i = i+4;	
 		}
-		else if(source_code[i]=='b')
+		else if(source_code[i]=='=' && source_code[i+1]!='=')
 		{
-			char* chkstr = substr(source_code, i, i+5);
-			if(strcmp(chkstr, "break")==0)
-			{
-				wTOK.type = TYPE_BREAK;
-				wTOK.token = "break";
-				parse(i, i+5);
-				i = i+4;
-			}		
+			wTOK.type = TYPE_EQ;
+			wTOK.token = "=";
+			parse(i, i+1);
+			i = i+1;
 		}
-		else if(source_code[i]=='=')
+		else if(source_code[i]=='=' && source_code[i]=='=')
 		{
-			char* chkstr = substr(source_code, i, i+1);
-			if(strcmp(chkstr, "==")==0)
-			{
-				wTOK.type = TYPE_EQ;
-				wTOK.token = "==";
-				parse(i, i+1);
-				i = i+1;
-			}		
+			wTOK.type = TYPE_ASGN;
+			wTOK.token = "==";
+			parse(i, i+1);
+			i = i+1;
+		}
+		else if(source_code[i]=='<')
+		{
+			wTOK.type = TYPE_OAB;
+			wTOK.token = "<";
+			parse(i, i+1);
+			i = i+1;
+		}
+		else if(source_code[i]=='>')
+		{
+			wTOK.type = TYPE_CAB;
+			wTOK.token = ">";
+			parse(i, i+1);
+			i = i+1;
+		}
+		else if(source_code[i]=='!' && source_code[i+1]=='=')
+		{
+			wTOK.type = TYPE_NE;
+			wTOK.token = "!=";
+			parse(i, i+1);
+			i = i+1;
+		}
+		else if(source_code[i]=='+')
+		{
+			wTOK.type = TYPE_ADD;
+			wTOK.token = "+";
+			parse(i, i+1);
+			i = i+1;
+		}
+		else if(source_code[i]=='-')
+		{
+			wTOK.type = TYPE_SUB;
+			wTOK.token = "-";
+			parse(i, i+1);
+			i = i+1;
+		}
+		else if(source_code[i]=='*')
+		{
+			wTOK.type = TYPE_MUL;
+			wTOK.token = "*";
+			parse(i, i+1);
+			i = i+1;
+		}
+		else if(source_code[i]=='/')
+		{
+			wTOK.type = TYPE_DIV;
+			wTOK.token = "/";
+			parse(i, i+1);
+			i = i+1;
 		}
 		else if(source_code[i] >= 'A' && source_code[i] <= 'z')
 		{
