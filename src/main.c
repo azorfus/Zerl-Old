@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include "lex.h"
+#include <stdbool.h>
+#include <string.h>
 
 void src_read(char** source_code, FILE* source_file)
 {
@@ -29,8 +28,8 @@ int main(int argc, char *argv[])
 
 	src_read(&source_code, source_file);
 	//fwrite(source_code, sizeof(char), strlen(source_code), stdout);
-	tokenize_code(source_code);
 
+	tokenize(source_code);
 	fclose(source_file);
 
 	return 0;
