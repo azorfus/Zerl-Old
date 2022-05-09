@@ -1,1 +1,1 @@
-gcc -Wextra -Wall ./src/*.c -o ./build/Linux/zerl
+gcc -Wextra -Wall ./src/*.c -o ./zerl
