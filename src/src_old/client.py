@@ -13,7 +13,6 @@ import os
 
 SERVER_HOST = "192.168.1.11" # str(input("Enter Host IP: "))
 SERVER_PORT = 8080
-separator_token = "<SEP>"
 
 fsport = 0
 
@@ -35,7 +34,8 @@ print(f"[*] Connected to {SERVER_HOST}:{SERVER_PORT}.")
 
 name = input("Enter your name: ")
 date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-conn_init = f"[{date_now}] {separator_token} {name} has connected.!@$:"
+to_send = f"{name} has connected."
+conn_init = f"{date_now}!@$#:server!@$#:{to_send}!@$:"
 s.send(conn_init.ljust(1024, "#").encode())
 
 def listen_for_messages():
@@ -208,11 +208,10 @@ while True:
 			file_download(fileName)
 	
 		else:
-			to_send = f"[{date_now}] {name}{separator_token}{to_send}!@$:"
+			to_send = f"{date_now}!@$#:{name}!@$#:{to_send}!@$:"
 			s.send(to_send.ljust(1024, "#").encode())
 		
 	except Exception as e:
 		print(f"[!] Error: {e}")
 
 s.close()
-
