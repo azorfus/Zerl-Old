@@ -9,10 +9,10 @@ import socket
 import threading
 import time
 import os
+import csv
 
 host = "192.168.1.11" # str(input("Enter Host IP: "))
 port = 8080
-sep_tok = "<SEP>"
 MAX_LISTEN_TIME = 2
 exit_flag = threading.Event()
 
@@ -167,6 +167,7 @@ def establish_conn(cs, file_name, FPORT, FLAG):
 	return 0
 
 def listen_for_client(cs):
+	global log_writer
 	while not exit_flag.is_set():
 		try:	
 			msg_R = cs.recv(1024).decode('utf-8', errors='ignore')
@@ -192,7 +193,9 @@ def listen_for_client(cs):
 				connThread.start()
 
 			else:
-				msg_R = msg.replace(sep_tok, ": ") + "!@$:"
+				info = msg_R.split("!@$#:")
+				log_writer.writerow([info[0], info[1], info[2].split("!@$:")[0], cs.getpeername()[0], 0])
+				msg_R = f"[{info[0]}] {info[1]}: {info[2]}!@$:"
 				msg = msg_R.ljust(1024, "#")
 				for client_socket in client_sockets:
 					client_socket.send(msg.encode())
@@ -204,6 +207,7 @@ def listen_for_client(cs):
 			break
 
 def server_term():
+	global logfile
 	while not exit_flag.is_set():
 		cmd = input("$ ")
 		if cmd == "ABORT":
@@ -216,23 +220,29 @@ def server_term():
 				cs.close()
 			s.close()
 			break 
+		if cmd == "logflush":
+			logfile.flush()
 
 
-term = threading.Thread(target = server_term)
-term.daemon = True
-term.start()
 
-while True:
-	client_socket, client_address = s.accept()
-	print(f"[+] {client_address} connected.")
-	client_sockets.append(client_socket)
+with open("logging_file.csv", "w+") as logfile:
+	log_writer = csv.writer(logfile, delimiter=",")
 
-	fport = 8081 + client_sockets.index(client_socket)
-	sport = f"{fport}!@$:".ljust(256, "#")
-	client_socket.send(sport.encode())
-
-	client_t = threading.Thread(target=listen_for_client, args=(client_socket,))
-	client_t.daemon = True
-	client_t.start()
+	term = threading.Thread(target = server_term)
+	term.daemon = True
+	term.start()
+	
+	while True:
+		client_socket, client_address = s.accept()
+		print(f"[+] {client_address} connected.")
+		client_sockets.append(client_socket)
+	
+		fport = 8081 + client_sockets.index(client_socket)
+		sport = f"{fport}!@$:".ljust(256, "#")
+		client_socket.send(sport.encode())
+	
+		client_t = threading.Thread(target=listen_for_client, args=(client_socket,))
+		client_t.daemon = True
+		client_t.start()
 
 s.close()
